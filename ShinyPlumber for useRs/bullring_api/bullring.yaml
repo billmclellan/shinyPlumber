@@ -1,0 +1,38 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: bullring
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: bullring
+  template:
+    metadata:
+      labels:
+        app: bullring
+    spec:
+      containers:
+      - name: bullring
+        image: bullreg.azurecr.io/bullring
+        ports:
+        - containerPort: 8000
+        resources:
+          requests:
+            cpu: 250m
+          limits:
+            cpu: 500m
+      imagePullSecrets:
+      - name: bullreg.azurecr.io
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: bullring-svc
+spec:
+  selector:
+      app: bullring
+  type: LoadBalancer
+  ports:
+  - protocol: TCP
+    port: 8000
