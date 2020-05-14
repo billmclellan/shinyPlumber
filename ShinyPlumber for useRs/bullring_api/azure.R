@@ -4,47 +4,53 @@ library(AzureContainers)
 # - on first login to this client, call create_azure_login()
 # - on subsequent logins, call get_azure_login()
 
+# deployclus-big$delete("service", "bullring-svc")
+# deployclus-big$delete("deployment", "bullring")
+
 wd <- getwd()
-setwd("/home/bmac/UseR/bullring/bullring_api")
+setwd("ShinyPlumber for useRs/bullring_api")
 
-source("secrets.R")
+source("secrets.R") # tenant, subscription, email
 
-az <- create_azure_login(tenant) # use get after 1st time
+az <- create_azure_login() # use get after 1st time
 
 # get a subscription and resource group
 sub <- az$get_subscription(subscription) 
-deployresgrp <- sub$get_resource_group("favorcon")
+deployresgrp <- sub$get_resource_group("shinyplumber") # use create_resource_group first time
 
 # create container registry
-deployreg_svc <- deployresgrp$get_acr("bullreg") # first time #create_acr
+deployreg_svc <- deployresgrp$get_acr("shinyplumberreg") # first time #create_acr
 
-# build image 'favdock'
+# build image 'favdock' on the local machine
 system.time(call_docker("build -t bullring ."))
+# initial build time much longer than subsequent updates
 # user   system  elapsed 
-# 53.485    5.133 1001.177 
+# 53.485    5.133 1001.177 Linux 
+# 61.72     2.22  1380.97  Windows
 
 # upload the image to Azure
 bullreg <- deployreg_svc$get_docker_registry()
 bullreg$push("bullring")
 
 # create a Kubernetes cluster with 2 nodes, running Linux
-#bull_svc <- deployresgrp$create_aks("bull_aks", agent_pools=aks_pools("pool2","D4_v3", 1))
-deployclus_svc <- deployresgrp$get_aks("deployclus")
+#bull_svc <- deployresgrp$create_aks("deployclus", agent_pools=aks_pools("agentpool","B2s", 3))
+deployclus_svc <- deployresgrp$get_aks("deployclus-big")
 
 # get the cluster endpoint
-deployclus <- deployclus_svc$get_cluster()
+`deployclus-big` <- deployclus_svc$get_cluster()
 
 # pass registry authentication details to the cluster
-deployclus$create_registry_secret(deployreg_svc, email = email)
+#deployclus$create_registry_secret(deployreg_svc, email = email)
 
 # create and start the service
-deployclus$create("bullring.yaml")
+`deployclus-big`$create("bullring.yaml")
 #system("sudo kubectl create -f bullring.yaml  --validate=false") #--kubeconfig=/home/bmac/.local/share/AzureR/kubeconfig_deployclus 
 
-deployclus$get("deployment bullring")
-deployclus$get("service bullring-svc")
+`deployclus-big`$get("deployment bullring")
+`deployclus-big`$get("service bullring-svc")
 
-# deployclus$delete("service", "bullring-svc")
-# deployclus$delete("deployment", "bullring")
+# `deployclus-big`$delete("service", "bullring-svc")
+# `deployclus-big`$delete("deployment", "bullring")
+# shinyplumber$delete()
 
 setwd(wd)

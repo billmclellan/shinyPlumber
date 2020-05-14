@@ -14,10 +14,9 @@ library(tidygraph)
 library(httr)
 library(png)
 
-source("secrets.R")
 # function(s)
 
-url = 'http://104.211.11.94:8000' 
+url = 'http://127.0.0.1:9818' #'http://40.88.16.1:8000' 
 curlBullRing <- function(nodes = 3) {
     nodes <- as.character(nodes)
     response <- httr::GET(paste(url, "bullring", sep = "/"), query = list(nodes = nodes))

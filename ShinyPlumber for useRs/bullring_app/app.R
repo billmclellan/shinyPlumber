@@ -7,6 +7,8 @@
 #    http://shiny.rstudio.com/
 #
 
+library(ggplot2)
+#library(glue)
 library(shiny)
 library(ggraph)
 library(igraph)
