@@ -16,7 +16,7 @@ library(png)
 
 # function(s)
 
-url = 'http://127.0.0.1:9818' #'http://40.88.16.1:8000' 
+url = 'http://23.99.206.141:8000' #'http://40.88.16.1:8000' 
 curlBullRing <- function(nodes = 3) {
     nodes <- as.character(nodes)
     response <- httr::GET(paste(url, "bullring", sep = "/"), query = list(nodes = nodes))
